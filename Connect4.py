@@ -1,5 +1,4 @@
 import tkinter as tk
-import random as rd
 
 class Connect:
     def __init__(self) -> None:
@@ -32,6 +31,18 @@ class Connect:
         self.game_canvas.config(width=self.SIDE_LEN, height=self.SIDE_LEN)
         # title of the window
         self.root.title("Connect 4")
+
+        # bind the click to call a func
+        self.root.bind("<Button-1>", self.click)
+
+    def click(self, event):
+        col = event.x//(self.SIDE_LEN//self.dimensions[0])
+        row = event.y//(self.SIDE_LEN//self.dimensions[0])
+        index = (col + row * self.dimensions[0])
+        # print(index)
+        # ^^^ - for debugging purposes only
+        #print(index % self.dimensions[0])
+        #self.place_piece(index % self.dimensions[0])
         
     def gameloop(self):
         while True:
@@ -46,6 +57,7 @@ class Connect:
         col = [item for index, item in enumerate(self.board) if index % (self.dimensions[0]) == column]
         if col.count(0) == 0:
             raise SystemError("invalid Move")
+        # wap players after each **valid** move
         self.Player = not self.Player
         return col.index(0)
 
@@ -59,14 +71,17 @@ class Connect:
                 # create the horizontal lines
                 self.game_canvas.create_line(0, line * self.TILE_SIZE, self.SIDE_LEN, line*self.TILE_SIZE, width = self.LINE_WID)
         for index, item in enumerate(gameboard):
+            # find the row and column of the item based of the index in the array
             ind_col, ind_row = index // (self.SIDE_LEN//self.TILE_SIZE), index % (self.SIDE_LEN//self.TILE_SIZE)
             if item:
+                # using ovals (circle) instead of rectangle since it makes sense
                 self.game_canvas.create_oval((ind_row) * self.TILE_SIZE + 5, (ind_col) * self.TILE_SIZE + 5, (ind_row + 1) * self.TILE_SIZE - 5, (ind_col + 1) * self.TILE_SIZE - 5, fill = self.PlayerColors(item))
 
         self.game_canvas.update()
         self.game_canvas.pack()
 
     def isGameOver(self):
+        # a "wrapper" function for checking if anyone won the game
         for i in range(len(self.board)):
             for j in range(8):
                 x, y = self.checkSpot(i, self.dirs[j], 1), self.checkSpot(i, self.dirs[j], 2)
@@ -75,9 +90,25 @@ class Connect:
         return 0
 
     def checkSpot(self, spot, direction, player):
+        self.dirs = [
+                    # define all the directions that can cause a win
+                    # left, right, up, down, diagonals
+                     -1, 1,
+                     -self.dimensions[0], self.dimensions[0],
+                     -self.dimensions[0]-1, self.dimensions[0]-1,
+                     -self.dimensions[0]+1, self.dimensions[0]+1
+                    ]
         try:
-            if all(self.board[spot + (i+1)*direction] == player for i in range(self.CONNECT)):
+            # very quick and dirty way to implement bound checking
+            # had already made most of the code so i couldnt switch
+            # to changing the board with escape characters
+
+            # just checking whether or not the index and the one before
+            # have a 1 column distance from each other
+            if all(self.board[spot + (i+1)*direction] == player and ((spot + (i + 1) * direction) % self.dimensions[0] == (spot + (i) * direction) % self.dimensions[0] + 1 or (spot + (i + 1) * direction) % self.dimensions[0] == (spot + (i) * direction) % self.dimensions[0] - 1) for i in range(self.CONNECT)):
                 return True
+        # if indexError is thrown then it means we went out of bounds,
+        # if we did then that means we tried searching below our array
         except IndexError: pass
         return False
 
