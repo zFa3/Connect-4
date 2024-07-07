@@ -27,16 +27,16 @@ class Connect:
         while True:
             self.drawGUI()
             Column = int(input())%self.dimensions[0] - 1
-            self.board[abs((self.place_piece(Column, self.Player) * self.dimensions[0] + abs(Column - self.dimensions[0])) - len(self.board))] = 1 if self.Player else 2
+            self.board[self.place_piece(Column, self.Player) * self.dimensions[0] + Column] = 1 if self.Player else 2
 
     def place_piece(self, column, player):
         # some code snippets for placing a piece at designated square
         # check for empty column, if so, then find the lowest point that is available
         col = [item for index, item in enumerate(self.board) if index % self.dimensions[0] == column]
-        if sum(col) == len(col):
-            return -1
+        if col.count(0) == 0:
+            raise SystemError("invalid Move")
         self.Player = not self.Player
-        return col[::-1].index(0)
+        return col.index(0)
 
     def drawGUI(self):
         self.game_canvas.delete("all")
