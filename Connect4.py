@@ -68,9 +68,9 @@ class Connect:
             elif var == 2:
                 print("YELLOW WON!")
                 self.clickDetect = False
-            #if var:
-                #self.GameOver(var)
-                #self.root.destroy()
+            if var:
+                self.GameOver(var)
+                self.root.destroy()
 
     def GameOver(self, var):
         self.game_canvas.delete("all")
