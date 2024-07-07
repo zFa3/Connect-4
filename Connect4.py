@@ -8,7 +8,8 @@ class Connect:
         self.CONNECT = 4 # how many in a row
         self.Player = 1 # represents player to move
         self.draw_grid = True # condition responsible for drawing the grid on screen
-        
+        self.clickDetect = True
+
         self.SIDE_LEN = 500 # in pixels
         self.TILE_SIZE = self.SIDE_LEN//self.dimensions[0] # also in pixels
         self.LINE_WID = 1 # width of the lines on the grid in pixels
@@ -17,11 +18,11 @@ class Connect:
                     # define all the directions that can cause a win
                     # left, right, up, down, diagonals
                      -1, 1,
-                     -self.dimensions[0], self.dimensions[0],
-                     -self.dimensions[0]-1, self.dimensions[0]-1,
-                     -self.dimensions[0]+1, self.dimensions[0]+1
+                     (-self.dimensions[0]), self.dimensions[0],
+                     (-self.dimensions[0])-1, self.dimensions[0]-1,
+                     (-self.dimensions[0])+1, self.dimensions[0]+1
                     ]
-
+        
         # Create a new window in tkinter
         self.root = tk.Tk()
         # Change the geometry of the window
@@ -37,26 +38,29 @@ class Connect:
         self.root.bind("<Button-1>", self.click)
 
     def click(self, event):
-        col = event.x//(self.SIDE_LEN//self.dimensions[0])
-        row = event.y//(self.SIDE_LEN//self.dimensions[0])
-        index = abs(((col + row * self.dimensions[0]) % self.dimensions[0]) - self.dimensions[0] + 1)
-        # print(index)
-        # ^^^ - for debugging purposes only
-        #print(index % self.dimensions[0])
-        #self.place_piece(index % self.dimensions[0])
-        try:
-            self.board[self.place_piece(index) * self.dimensions[0] + index] = 1 if self.Player else 2
-        except:
-            pass
-        self.drawGUI(self.board[::-1])
-        var = self.isGameOver()
-        if var == 1:
-            print("RED WON!")
-        elif var == 2:
-            print("YELLOW WON!")
-        if var:
-            self.GameOver(var)
-            self.root.destroy()
+        if self.clickDetect:
+            col = event.x//(self.SIDE_LEN//self.dimensions[0])
+            row = event.y//(self.SIDE_LEN//self.dimensions[0])
+            index = abs(((col + row * self.dimensions[0]) % self.dimensions[0]) - self.dimensions[0] + 1)
+            # print(index)
+            # ^^^ - for debugging purposes only
+            #print(index % self.dimensions[0])
+            #self.place_piece(index % self.dimensions[0])
+            try:
+                self.board[self.place_piece(index) * self.dimensions[0] + index] = 1 if self.Player else 2
+            except:
+                pass
+            self.drawGUI(self.board[::-1])
+            var = self.isGameOver()
+            if var == 1:
+                print("RED WON!")
+                self.clickDetect = False
+            elif var == 2:
+                print("YELLOW WON!")
+                self.clickDetect = False
+            if var:
+                self.GameOver(var)
+                self.root.destroy()
 
     def GameOver(self, var):
         self.game_canvas.delete("all")
@@ -113,14 +117,9 @@ class Connect:
         return 0
 
     def checkSpot(self, spot, direction, player):
-        self.dirs = [
+        self.dirs = [-1, 1, (-self.dimensions[0]), self.dimensions[0],(-self.dimensions[0])-1, self.dimensions[0]-1,(-self.dimensions[0])+1, self.dimensions[0]+1]
                     # define all the directions that can cause a win
                     # left, right, up, down, diagonals
-                     -1, 1,
-                     -self.dimensions[0], self.dimensions[0],
-                     -self.dimensions[0]-1, self.dimensions[0]-1,
-                     -self.dimensions[0]+1, self.dimensions[0]+1
-                    ]
         try:
             # very quick and dirty way to implement bound checking
             # had already made most of the code so i couldnt switch
@@ -128,9 +127,14 @@ class Connect:
 
             # just checking whether or not the index and the one before
             # have a 1 column distance from each other
-            # print(self.board[spot + (i+1)*direction] == player and ((spot + (i + 1) * direction) % self.dimensions[0] == (spot + (i) * direction) % self.dimensions[0] or (spot + (i + 1) * direction) % self.dimensions[0] == (spot + (i) * direction) % self.dimensions[0] + 1 or (spot + (i + 1) * direction) % self.dimensions[0] == (spot + (i) * direction) % self.dimensions[0] - 1) for i in range(self.CONNECT))
-            if all(self.board[spot + (i+1)*direction] == player and ((spot + (i + 1) * direction) % self.dimensions[0] == (spot + (i) * direction) % self.dimensions[0] or (spot + (i + 1) * direction) % self.dimensions[0] == (spot + (i) * direction) % self.dimensions[0] + 1 or (spot + (i + 1) * direction) % self.dimensions[0] == (spot + (i) * direction) % self.dimensions[0] - 1) for i in range(self.CONNECT)):
+
+            if all(self.board[spot + (i+1)*direction] == player and ((spot + (i + 1) * direction) % self.dimensions[0] == (spot + (i) * direction) % self.dimensions[0] or (spot + (i + 1) * direction) % self.dimensions[0] == (spot + (i) * direction) % self.dimensions[0] + 1 or (spot + (i + 1) * direction) % self.dimensions[0] == (spot + (i) * direction) % self.dimensions[0]) for i in range(self.CONNECT)):
                 return True
+            if all(self.board[spot + (i+1)*direction] == player and ((spot + (i + 1) * direction) % (self.dimensions[0]-1) == (spot + (i) * direction) % (self.dimensions[0]-1) or (spot + (i + 1) * direction) % (self.dimensions[0]-1) == (spot + (i) * direction) % (self.dimensions[0]-1) + 1 or (spot + (i + 1) * direction) % (self.dimensions[0]-1) == (spot + (i) * direction) % (self.dimensions[0]-1)) for i in range(self.CONNECT)):
+                return True
+            if all(self.board[spot + (i+1)*direction] == player and ((spot + (i + 1) * direction) % (self.dimensions[0] + 1) == (spot + (i) * direction) % (self.dimensions[0] + 1) or (spot + (i + 1) * direction) % (self.dimensions[0] + 1) == (spot + (i) * direction) % (self.dimensions[0] + 1) + 1 or (spot + (i + 1) * direction) % (self.dimensions[0] + 1) == (spot + (i) * direction) % (self.dimensions[0] + 1)) for i in range(self.CONNECT)):
+                return True
+        
         # if indexError is thrown then it means we went out of bounds,
         # if we did then that means we tried searching below our array
         except IndexError: pass
