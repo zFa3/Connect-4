@@ -39,9 +39,9 @@ class Connect:
                     # define all the directions that can cause a win
                     # left, right, up, down, diagonals
                      -1, 1,
-                     (-self.dimensions[0]), self.dimensions[0],
-                     (-self.dimensions[0])-1, self.dimensions[0]-1,
-                     (-self.dimensions[0])+1, self.dimensions[0]+1
+                     (-(self.dimensions[0]+2)), (self.dimensions[0]+2),
+                     (-(self.dimensions[0]+2))-1, (self.dimensions[0]+2)-1,
+                     (-(self.dimensions[0]+2))+1, (self.dimensions[0]+2)+1
                     ]
 
         # bind the click to call a func
@@ -60,7 +60,7 @@ class Connect:
                 self.board[self.place_piece(index) * (self.dimensions[0] + 2) + index] = 1 if self.Player else 2
             except:
                 pass
-            self.drawGUI(self.board[::-1])
+            self.drawGUI()
             var = self.isGameOver()
             if var == 1:
                 print("RED WON!")
@@ -68,9 +68,9 @@ class Connect:
             elif var == 2:
                 print("YELLOW WON!")
                 self.clickDetect = False
-            if var:
-                self.GameOver(var)
-                self.root.destroy()
+            #if var:
+                #self.GameOver(var)
+                #self.root.destroy()
 
     def GameOver(self, var):
         self.game_canvas.delete("all")
@@ -80,7 +80,7 @@ class Connect:
             self.game_canvas.update()
 
     def gameloop(self):
-        self.drawGUI(self.board[::-1])
+        self.drawGUI()
         '''
         while True:
             Column = abs(int(input()) - ((self.dimensions[0] + 2) + 1)) - 1
@@ -98,7 +98,7 @@ class Connect:
         self.Player = not self.Player
         return col.index(0)
 
-    def drawGUI(self, gameboard):
+    def drawGUI(self):
         self.game_canvas.delete("all")
         if self.draw_grid:
             for line in range(self.SIDE_LEN//self.TILE_SIZE):
@@ -107,7 +107,7 @@ class Connect:
             for line in range(self.SIDE_LEN//self.TILE_SIZE):
                 # create the horizontal lines
                 self.game_canvas.create_line(0, line * self.TILE_SIZE, self.SIDE_LEN, line*self.TILE_SIZE, width = self.LINE_WID)
-        for index, item in enumerate(gameboard):
+        for index, item in enumerate(self.board[::-1]):
             # find the row and column of the item based of the index in the array
             ind_col, ind_row = index // (self.SIDE_LEN//self.TILE_SIZE), index % (self.SIDE_LEN//self.TILE_SIZE)
             if item:
@@ -126,10 +126,10 @@ class Connect:
                     if x: return 1
                     if y: return 2
         return 0
-
+    
     def checkSpot(self, spot, direction, player):
         for i in range(self.CONNECT):
-            if (self.board[spot + (i * direction)] != player):
+            if (self.board[spot + (i * direction)] != int(player)):
                 return False
         return True
 
