@@ -38,18 +38,29 @@ class Connect:
     def click(self, event):
         col = event.x//(self.SIDE_LEN//self.dimensions[0])
         row = event.y//(self.SIDE_LEN//self.dimensions[0])
-        index = (col + row * self.dimensions[0])
+        index = abs(((col + row * self.dimensions[0]) % self.dimensions[0]) - self.dimensions[0] + 1)
         # print(index)
         # ^^^ - for debugging purposes only
         #print(index % self.dimensions[0])
         #self.place_piece(index % self.dimensions[0])
+        self.board[self.place_piece(index) * self.dimensions[0] + index] = 1 if self.Player else 2
+        self.drawGUI(self.board[::-1])
+        var = self.isGameOver()
+        if var == 1:
+            self.root.destroy()
+            print("RED WON!")
+        elif var == 2:
+            self.root.destroy()
+            print("YELLOW WON!")
         
     def gameloop(self):
+        self.drawGUI(self.board[::-1])
+        '''
         while True:
-            self.drawGUI(self.board[::-1])
             Column = abs(int(input()) - (self.dimensions[0] + 1)) - 1
             self.board[self.place_piece(Column) * self.dimensions[0] + Column] = 1 if self.Player else 2
             print(self.isGameOver())
+        '''
 
     def place_piece(self, column):
         # some code snippets for placing a piece at designated square
@@ -57,7 +68,7 @@ class Connect:
         col = [item for index, item in enumerate(self.board) if index % (self.dimensions[0]) == column]
         if col.count(0) == 0:
             raise SystemError("invalid Move")
-        # wap players after each **valid** move
+        # swap players after each **valid** move
         self.Player = not self.Player
         return col.index(0)
 
@@ -123,3 +134,4 @@ class Connect:
 
 connect = Connect()
 connect.gameloop()
+connect.root.mainloop()
