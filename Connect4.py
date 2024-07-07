@@ -25,20 +25,20 @@ class Connect:
         
     def gameloop(self):
         while True:
-            self.drawGUI()
-            Column = int(input())%self.dimensions[0] - 1
-            self.board[self.place_piece(Column, self.Player) * self.dimensions[0] + Column] = 1 if self.Player else 2
+            self.drawGUI(self.board[::-1])
+            Column = abs(int(input()) - (self.dimensions[0] + 1)) - 1
+            self.board[self.place_piece(Column) * self.dimensions[0] + Column] = 1 if self.Player else 2
 
-    def place_piece(self, column, player):
+    def place_piece(self, column):
         # some code snippets for placing a piece at designated square
         # check for empty column, if so, then find the lowest point that is available
-        col = [item for index, item in enumerate(self.board) if index % self.dimensions[0] == column]
+        col = [item for index, item in enumerate(self.board) if index % (self.dimensions[0]) == column]
         if col.count(0) == 0:
             raise SystemError("invalid Move")
         self.Player = not self.Player
         return col.index(0)
 
-    def drawGUI(self):
+    def drawGUI(self, gameboard):
         self.game_canvas.delete("all")
         if self.draw_grid:
             for line in range(self.SIDE_LEN//self.TILE_SIZE):
@@ -47,7 +47,7 @@ class Connect:
             for line in range(self.SIDE_LEN//self.TILE_SIZE):
                 # create the horizontal lines
                 self.game_canvas.create_line(0, line * self.TILE_SIZE, self.SIDE_LEN, line*self.TILE_SIZE, width = self.LINE_WID)
-        for index, item in enumerate(self.board):
+        for index, item in enumerate(gameboard):
             ind_col, ind_row = index // (self.SIDE_LEN//self.TILE_SIZE), index % (self.SIDE_LEN//self.TILE_SIZE)
             if item:
                 self.game_canvas.create_rectangle((ind_row) * self.TILE_SIZE, (ind_col) * self.TILE_SIZE, (ind_row + 1) * self.TILE_SIZE, (ind_col + 1) * self.TILE_SIZE, fill = self.PlayerColors(item))
