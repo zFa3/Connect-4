@@ -1,4 +1,5 @@
 import tkinter as tk
+import random as rd
 
 class Connect:
     def __init__(self) -> None:
@@ -11,6 +12,15 @@ class Connect:
         self.SIDE_LEN = 500 # in pixels
         self.TILE_SIZE = self.SIDE_LEN//self.dimensions[0] # also in pixels
         self.LINE_WID = 1 # width of the lines on the grid in pixels
+
+        self.dirs = [
+                    # define all the directions that can cause a win
+                    # left, right, up, down, diagonals
+                     -1, 1,
+                     -self.dimensions[0], self.dimensions[0],
+                     -self.dimensions[0]-1, self.dimensions[0]-1,
+                     -self.dimensions[0]+1, self.dimensions[0]+1
+                    ]
 
         # Create a new window in tkinter
         self.root = tk.Tk()
@@ -28,6 +38,7 @@ class Connect:
             self.drawGUI(self.board[::-1])
             Column = abs(int(input()) - (self.dimensions[0] + 1)) - 1
             self.board[self.place_piece(Column) * self.dimensions[0] + Column] = 1 if self.Player else 2
+            print(self.isGameOver())
 
     def place_piece(self, column):
         # some code snippets for placing a piece at designated square
@@ -50,19 +61,34 @@ class Connect:
         for index, item in enumerate(gameboard):
             ind_col, ind_row = index // (self.SIDE_LEN//self.TILE_SIZE), index % (self.SIDE_LEN//self.TILE_SIZE)
             if item:
-                self.game_canvas.create_rectangle((ind_row) * self.TILE_SIZE, (ind_col) * self.TILE_SIZE, (ind_row + 1) * self.TILE_SIZE, (ind_col + 1) * self.TILE_SIZE, fill = self.PlayerColors(item))
+                self.game_canvas.create_oval((ind_row) * self.TILE_SIZE + 5, (ind_col) * self.TILE_SIZE + 5, (ind_row + 1) * self.TILE_SIZE - 5, (ind_col + 1) * self.TILE_SIZE - 5, fill = self.PlayerColors(item))
 
         self.game_canvas.update()
         self.game_canvas.pack()
 
+    def isGameOver(self):
+        for i in range(len(self.board)):
+            for j in range(8):
+                x, y = self.checkSpot(i, self.dirs[j], 1), self.checkSpot(i, self.dirs[j], 2)
+                if x: return 1
+                if y: return 2
+        return 0
+
+    def checkSpot(self, spot, direction, player):
+        try:
+            if all(self.board[spot + (i+1)*direction] == player for i in range(self.CONNECT)):
+                return True
+        except IndexError: pass
+        return False
+
     def PlayerColors(self, player):
-        player_colors = {
+        self.player_colors = {
             #1:"#FF5733",
             #2:"#E6D735",
             1:"#E61F00",
             2:"#E6AE00",
         }
-        return player_colors[player]
+        return self.player_colors[player]
 
 connect = Connect()
 connect.gameloop()
