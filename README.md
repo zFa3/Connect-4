@@ -12,4 +12,4 @@ with python
 Inspiration ---
 I created a Tic Tac Toe game in school for a project,
 tetris, minesweeper and 2048 so I though I could create another
-iconic game in tkinter, which i leared last year
+iconic game in tkinter, which I learned in compsci
