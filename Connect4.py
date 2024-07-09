@@ -45,7 +45,7 @@ class Connect:
                     ]
 
         # bind the click to call a func
-        self.root.bind("<Button-1>", self.click)
+        self.game_canvas.bind("<Button-1>", self.click)
 
     def click(self, event):
         if self.clickDetect:
