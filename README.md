@@ -14,5 +14,5 @@ with python
   
 Inspiration ---  
 I created a Tic Tac Toe game in school for a project,  
-tetris, minesweeper and 2048 so I though I could create another  
-iconic game in tkinter, which I learned in compsci  
+tetris, minesweeper and 2048 co sontinuing the theme
+of iconic game I chose to create Connect 4 in Tkinter
